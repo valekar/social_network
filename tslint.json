@@ -1,0 +1,15 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "member-ordering": false,
+    "object-literal-sort-keys": false,
+    "ordered-imports": false,
+    "quotemark": [true, "double"],
+    "no-consecutive-blank-lines": false,
+    "arrow-parens": false
+  },
+  "linterOptions": {
+    "exclude": ["./node_modules/**"]
+  },
+  "rulesDirectory": ["node_modules/tslint-lines-between-class-members"]
+}
