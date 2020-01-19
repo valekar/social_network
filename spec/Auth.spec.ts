@@ -38,7 +38,7 @@ describe("UserRouter", () => {
       //const role = UserRoles.Standard;
       const pwdHash = hashPwd(creds.password);
       const loginUser = new User({ email: creds.email, password: pwdHash });
-      spyOn(UserDao.prototype, "getOne").and.returnValue(
+      spyOn(UserDao.prototype, "getOneByEmail").and.returnValue(
         Promise.resolve(loginUser)
       );
       // Call API
@@ -57,7 +57,9 @@ describe("UserRouter", () => {
         email: "jsmith@gmail.com",
         password: "Password@1"
       };
-      spyOn(UserDao.prototype, "getOne").and.returnValue(Promise.resolve(null));
+      spyOn(UserDao.prototype, "getOneByEmail").and.returnValue(
+        Promise.resolve(null)
+      );
       // Call API
       callApi(creds).end((err: Error, res: any) => {
         pErr(err);
@@ -77,7 +79,7 @@ describe("UserRouter", () => {
       //const role = UserRoles.Standard;
       const pwdHash = hashPwd("Password@1");
       const loginUser = new User({ email: creds.email, password: pwdHash });
-      spyOn(UserDao.prototype, "getOne").and.returnValue(
+      spyOn(UserDao.prototype, "getOneByEmail").and.returnValue(
         Promise.resolve(loginUser)
       );
       // Call API
@@ -96,7 +98,7 @@ describe("UserRouter", () => {
         email: "jsmith@gmail.com",
         password: "someBadPassword"
       };
-      spyOn(UserDao.prototype, "getOne").and.throwError(
+      spyOn(UserDao.prototype, "getOneByEmail").and.throwError(
         "Database query failed."
       );
       // Call API
