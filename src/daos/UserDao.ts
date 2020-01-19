@@ -1,6 +1,6 @@
 import { User, IUser } from "@models";
 import bcrypt from "bcrypt";
-import { UserAlreadyExistsError, ResourceNotFoundError } from "@errors";
+import { ResourceAlreadyExistsError, ResourceNotFoundError } from "@errors";
 
 export interface IUserDao {
   getOneByEmail: (email: string) => Promise<IUser | null>;
@@ -71,11 +71,11 @@ export class UserDao implements IUserDao {
         });
         return await newUser.save();
       } else {
-        throw new UserAlreadyExistsError("User already exists");
+        throw new ResourceAlreadyExistsError("User already exists");
       }
     } catch (err) {
-      if (err instanceof UserAlreadyExistsError) {
-        throw new UserAlreadyExistsError(err.message);
+      if (err instanceof ResourceAlreadyExistsError) {
+        throw new ResourceAlreadyExistsError(err.message);
       }
       throw err;
     }

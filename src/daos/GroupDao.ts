@@ -61,8 +61,8 @@ export class GroupDao implements IGroupDao {
   }
   public async delete(id: string): Promise<void> {
     try {
-      let deleteUser = await Group.findByIdAndDelete(id);
-      if (!deleteUser) {
+      let deleteGroup = await Group.findByIdAndDelete(id);
+      if (!deleteGroup) {
         throw new ResourceNotFoundError(
           "Could not delete Group, Group not found"
         );
