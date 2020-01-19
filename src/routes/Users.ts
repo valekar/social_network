@@ -9,10 +9,10 @@ const router = Router();
 const userDao = new UserDao();
 
 /******************************************************************************
- *                      Get All Users - "GET /api/users/all"
+ *                      Get All Users - "GET /api/users/"
  ******************************************************************************/
 
-router.get("/all", adminMW, async (req: Request, res: Response) => {
+router.get("/", adminMW, async (req: Request, res: Response) => {
   try {
     const users = await userDao.getAll();
     return res.status(OK).json({ users });
@@ -25,10 +25,54 @@ router.get("/all", adminMW, async (req: Request, res: Response) => {
 });
 
 /******************************************************************************
- *                       Add One - "POST /api/users/add"
+ *                      Get an User - "GET /api/users/email"
  ******************************************************************************/
 
-router.post("/add", adminMW, async (req: Request, res: Response) => {
+router.get("/email", async (req: Request, res: Response) => {
+  try {
+    const { email } = req.query as ParamsDictionary;
+    if (!email) {
+      return res.status(BAD_REQUEST).json({
+        error: paramMissingError
+      });
+    }
+    const group = await userDao.getOneByEmail(email);
+    return res.status(OK).json({ group });
+  } catch (err) {
+    logger.error(err.message, err);
+    return res.status(BAD_REQUEST).json({
+      error: err.message
+    });
+  }
+});
+
+/******************************************************************************
+ *                      Get an User - "GET /api/users/:id"
+ ******************************************************************************/
+
+router.get("/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as ParamsDictionary;
+    if (!id) {
+      return res.status(BAD_REQUEST).json({
+        error: paramMissingError
+      });
+    }
+    const group = await userDao.getOneById(id);
+    return res.status(OK).json({ group });
+  } catch (err) {
+    logger.error(err.message, err);
+    return res.status(BAD_REQUEST).json({
+      error: err.message
+    });
+  }
+});
+
+/******************************************************************************
+ *                       Add One - "POST /api/users/"
+ ******************************************************************************/
+
+router.post("/", adminMW, async (req: Request, res: Response) => {
   try {
     // Check parameters
     const { user } = req.body;
@@ -51,21 +95,21 @@ router.post("/add", adminMW, async (req: Request, res: Response) => {
 });
 
 /******************************************************************************
- *                       Update - "PUT /api/users/update"
+ *                       Update - "PUT /api/users/:id"
  ******************************************************************************/
 
-router.put("/update", adminMW, async (req: Request, res: Response) => {
+router.put("/:id", adminMW, async (req: Request, res: Response) => {
   try {
     // Check Parameters
     const { user } = req.body;
-    if (!user) {
+    const { id } = req.params as ParamsDictionary;
+    if (!user || !id) {
       return res.status(BAD_REQUEST).json({
         error: paramMissingError
       });
     }
-    // Update user
-    user.id = Number(user.id);
-    await userDao.update(user);
+
+    await userDao.update(user, id);
     return res.status(OK).end();
   } catch (err) {
     logger.error(err.message, err);
@@ -76,10 +120,10 @@ router.put("/update", adminMW, async (req: Request, res: Response) => {
 });
 
 /******************************************************************************
- *                    Delete - "DELETE /api/users/delete/:id"
+ *                    Delete - "DELETE /api/users/:id"
  ******************************************************************************/
 
-router.delete("/delete/:id", adminMW, async (req: Request, res: Response) => {
+router.delete("/:id", adminMW, async (req: Request, res: Response) => {
   try {
     const { id } = req.params as ParamsDictionary;
     await userDao.delete(Number(id));

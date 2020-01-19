@@ -1,11 +1,13 @@
 import { User, IUser } from "@models";
 import bcrypt from "bcrypt";
+import { UserAlreadyExistsError, ResourceNotFoundError } from "@errors";
 
 export interface IUserDao {
-  getOne: (email: string) => Promise<IUser | null>;
+  getOneByEmail: (email: string) => Promise<IUser | null>;
+  getOneById: (id: string) => Promise<IUser | null>;
   getAll: () => Promise<IUser[]>;
   add: (user: IUser) => Promise<IUser>;
-  update: (user: IUser) => Promise<void>;
+  update: (user: IUser, id: String) => Promise<void>;
   delete: (id: number) => Promise<void>;
 }
 
@@ -13,11 +15,27 @@ export class UserDao implements IUserDao {
   /**
    * @param email
    */
-  public async getOne(email: string): Promise<IUser | null> {
+  public async getOneByEmail(email: string): Promise<IUser | null> {
     try {
       const user = await User.findOne({ email: email });
       return user;
     } catch (err) {
+      throw err;
+    }
+  }
+
+  public async getOneById(id: string): Promise<IUser | null> {
+    try {
+      const user = await User.findOne({ _id: id });
+      if (user) {
+        return user;
+      } else {
+        throw new ResourceNotFoundError("User not found");
+      }
+    } catch (err) {
+      if (err instanceof ResourceNotFoundError) {
+        throw new ResourceNotFoundError(err.message);
+      }
       throw err;
     }
   }
@@ -39,19 +57,26 @@ export class UserDao implements IUserDao {
    */
   public async add(user: IUser): Promise<IUser> {
     try {
-      const newUser = new User({
-        name: user.name,
-        password: await bcrypt.hash(user.password, 10),
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        abuse: user.abuse,
-        groups: user.groups,
-        phoneNumber: user.phoneNumber
-      });
-
-      return await newUser.save();
+      const existingUser = User.findOne({ email: user.email });
+      if (!existingUser) {
+        const newUser = new User({
+          name: user.name,
+          password: await bcrypt.hash(user.password, 10),
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          abuse: user.abuse,
+          groups: user.groups,
+          phoneNumber: user.phoneNumber
+        });
+        return await newUser.save();
+      } else {
+        throw new UserAlreadyExistsError("User already exists");
+      }
     } catch (err) {
+      if (err instanceof UserAlreadyExistsError) {
+        throw new UserAlreadyExistsError(err.message);
+      }
       throw err;
     }
   }
@@ -60,10 +85,10 @@ export class UserDao implements IUserDao {
    *
    * @param user
    */
-  public async update(user: IUser): Promise<void> {
+  public async update(user: IUser, id: String): Promise<void> {
     try {
       // tslint:disable-next-line: prefer-const
-      let updateUser = await User.findById(user._id);
+      let updateUser = await User.findById(id);
       if (updateUser != null) {
         if (user.name) {
           updateUser.name = user.name;
@@ -86,6 +111,9 @@ export class UserDao implements IUserDao {
         }
         if (user.active) {
           updateUser.active = user.active;
+        }
+        if (user.groups) {
+          updateUser.groups = user.groups;
         }
         updateUser.updatedAt = Date.now();
         await updateUser.save();

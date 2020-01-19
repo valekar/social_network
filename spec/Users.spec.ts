@@ -10,10 +10,10 @@ import { pErr, paramMissingError } from "@shared";
 
 describe("UserRouter", () => {
   const usersPath = "/api/users";
-  const getUsersPath = `${usersPath}/all`;
-  const addUsersPath = `${usersPath}/add`;
-  const updateUserPath = `${usersPath}/update`;
-  const deleteUserPath = `${usersPath}/delete/:id`;
+  const getUsersPath = `${usersPath}/email`;
+  const addUsersPath = `${usersPath}/`;
+  const updateUserPath = `${usersPath}/`;
+  const deleteUserPath = `${usersPath}/:id`;
 
   let agent: SuperTest<Test>;
   let jwtCookie: string;
@@ -88,7 +88,9 @@ describe("UserRouter", () => {
     };
 
     it(`should return a status code of "${CREATED}" if the request was successful.`, done => {
-      spyOn(UserDao.prototype, "add").and.returnValue(Promise.resolve());
+      spyOn(UserDao.prototype, "add").and.returnValue(
+        Promise.resolve(userData.user)
+      );
       callApi(userData).end((err: Error, res: Response) => {
         pErr(err);
         expect(res.status).toBe(CREATED);

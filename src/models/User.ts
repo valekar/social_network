@@ -1,6 +1,7 @@
 import mongoose, { Document } from "mongoose";
 import { IGroup } from "./Group";
 import { IBase } from "./Base";
+import { ObjectId } from "mongodb";
 const Schema = mongoose.Schema;
 export interface IUser extends Document, IBase {
   name: string;
@@ -26,6 +27,7 @@ const userSchema = new Schema({
   },
   groups: [
     {
+      _id: { type: ObjectId, required: true },
       groupsData: {
         type: Object,
         required: true

@@ -31,7 +31,7 @@ router.post("/login", async (req: Request, res: Response) => {
       });
     }
     // Fetch user
-    const user = await userDao.getOne(email);
+    const user = await userDao.getOneByEmail(email);
     if (!user) {
       return res.status(UNAUTHORIZED).json({
         error: loginFailedErr
