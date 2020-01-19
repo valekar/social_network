@@ -1,7 +1,8 @@
 import mongoose, { Document } from "mongoose";
 import { IGroup } from "./Group";
+import { IBase } from "./Base";
 const Schema = mongoose.Schema;
-export interface IUser extends Document {
+export interface IUser extends Document, IBase {
   name: string;
   email: string;
   groups: [
@@ -38,7 +39,19 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
-  abuse: Number
+  abuse: Number,
+  active: {
+    type: Boolean,
+    default: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now()
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now()
+  }
 });
 
 export const User = mongoose.model<IUser>("User", userSchema);

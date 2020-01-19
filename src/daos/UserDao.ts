@@ -15,7 +15,7 @@ export class UserDao implements IUserDao {
    */
   public async getOne(email: string): Promise<IUser | null> {
     try {
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ email: email });
       return user;
     } catch (err) {
       throw err;
@@ -38,14 +38,16 @@ export class UserDao implements IUserDao {
    * @param user
    */
   public async add(user: IUser): Promise<IUser> {
-    // TODO
-
     try {
       const newUser = new User({
         name: user.name,
-
-        password: user.password,
-        email: user.email
+        password: await bcrypt.hash(user.password, 10),
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        abuse: user.abuse,
+        groups: user.groups,
+        phoneNumber: user.phoneNumber
       });
 
       return await newUser.save();
@@ -63,12 +65,33 @@ export class UserDao implements IUserDao {
       // tslint:disable-next-line: prefer-const
       let updateUser = await User.findById(user._id);
       if (updateUser != null) {
-        updateUser.name = user.name;
-        updateUser.email = user.email;
-        updateUser.password = await bcrypt.hash(user.password, 10);
+        if (user.name) {
+          updateUser.name = user.name;
+        }
+
+        if (user.password) {
+          updateUser.password = await bcrypt.hash(user.password, 10);
+        }
+        if (user.firstName) {
+          updateUser.firstName = user.firstName;
+        }
+        if (user.lastName) {
+          updateUser.lastName = user.lastName;
+        }
+        if (user.phoneNumber) {
+          updateUser.phoneNumber = user.phoneNumber;
+        }
+        if (user.abuse) {
+          updateUser.abuse = user.abuse;
+        }
+        if (user.active) {
+          updateUser.active = user.active;
+        }
+        updateUser.updatedAt = Date.now();
         await updateUser.save();
+      } else {
+        throw new Error("user not found");
       }
-      throw new Error("user not found");
     } catch (err) {
       throw err;
     }

@@ -18,7 +18,8 @@
       "@entities": ["src/entities"],
       "@shared": ["src/shared"],
       "@server": ["src/Server"],
-      "@models": ["src/models"]
+      "@models": ["src/models"],
+      "@errors": ["src/exceptions"]
     },
     "types": ["node"],
     "typeRoots": ["node_modules/@types"]

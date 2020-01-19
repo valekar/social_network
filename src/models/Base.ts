@@ -1,5 +1,6 @@
 export interface IBase {
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Number;
+  updatedAt: Number;
   abuse: Number;
+  active: Boolean;
 }
