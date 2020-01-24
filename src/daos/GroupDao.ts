@@ -32,8 +32,8 @@ export class GroupDao implements IGroupDao {
         name: group.name,
         value: group.value
       });
-      await newGroup.save();
-      return newGroup;
+      const result = await newGroup.save();
+      return result;
     } catch (err) {
       throw new DatabaseError(err);
     }

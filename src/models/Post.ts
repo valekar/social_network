@@ -2,6 +2,7 @@ import mongoose, { Document } from "mongoose";
 import { IBase } from "./Base";
 import { IPhoto } from "./Photo";
 import { IComment } from "./Comment";
+import { ObjectId } from "mongodb";
 const Schema = mongoose.Schema;
 
 export interface IPost extends Document, IBase {
@@ -9,12 +10,14 @@ export interface IPost extends Document, IBase {
   description: String;
   photos: [
     {
-      photoData: IPhoto;
+      _id?: String;
+      photo: IPhoto | null;
     }
   ];
-  comment: [
+  comments: [
     {
-      commentData: IComment;
+      _id?: String;
+      comment: IComment | null;
     }
   ];
   userId: String;
@@ -31,12 +34,21 @@ const postSchema = new Schema({
   },
   photos: [
     {
-      photoData: {
+      photo: {
         type: Object
       }
     }
   ],
-  abuse: Number
+  comments: [
+    {
+      comment: {
+        type: Object
+      }
+    }
+  ],
+  abuse: Number,
+  categoryId: ObjectId,
+  userId: ObjectId
 });
 
 export const Post = mongoose.model<IPost>("Post", postSchema);

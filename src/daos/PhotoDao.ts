@@ -38,8 +38,8 @@ export class PhotoDao implements IPhotoDao {
         abuse: photo.abuse,
         active: photo.active
       });
-      await newPhoto.save();
-      return newPhoto;
+      const result = await newPhoto.save();
+      return result;
     } catch (err) {
       if (err instanceof ResourceAlreadyExistsError) {
         throw new ResourceAlreadyExistsError(err.message);

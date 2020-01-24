@@ -5,6 +5,7 @@ import GroupRouter from "./Group";
 import CategoryRouter from "./Category";
 import CommentRouter from "./Comment";
 import PhotoRouter from "./Photo";
+import PostRouter from "./Post";
 
 // Init router and path
 const router = Router();
@@ -16,6 +17,7 @@ router.use("/groups", GroupRouter);
 router.use("/categories", CategoryRouter);
 router.use("/comments", CommentRouter);
 router.use("/photos", PhotoRouter);
+router.use("/posts", PostRouter);
 
 // Export the base-router
 export default router;

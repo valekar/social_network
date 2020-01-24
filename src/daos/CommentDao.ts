@@ -39,8 +39,8 @@ export class CommentDao implements ICommentDao {
         abuse: comment.abuse,
         active: comment.active
       });
-      await newComment.save();
-      return newComment;
+      const result = await newComment.save();
+      return result;
     } catch (err) {
       if (err instanceof ResourceAlreadyExistsError) {
         throw new ResourceAlreadyExistsError(err.message);
