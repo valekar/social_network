@@ -5,47 +5,140 @@ import {
   ResourceAlreadyExistsError
 } from "@errors";
 
+export interface IPostComment {
+  postId: String;
+  commentId: String;
+  comment: IComment | null;
+}
+
+export interface IPostPhoto {
+  postId: String;
+  photo: IPhoto | null;
+  photoId: String;
+}
+
+export interface ICommentData {
+  _id?: String;
+  comment: IComment | null;
+}
+
+export interface IPhotoData {
+  _id?: String;
+  photo: IPhoto | null;
+}
+
 export interface IPostDao {
   getOne: (value: string) => Promise<IPost | null>;
   getAll: () => Promise<IPost[]>;
   add: (Post: IPost) => Promise<IPost>;
   update: (Post: IPost, id: string) => Promise<void>;
   delete: (id: string) => Promise<void>;
-  updateComment: (
-    postId: String,
-    commentId: String,
-    comment: IComment
-  ) => Promise<void>;
-  addComment: (postId: String, comment: IComment) => Promise<IComment | null>;
-  deleteComment: (postId: String, commentId: String) => Promise<void>;
+  updateComment: (postComment: IPostComment) => Promise<void>;
+  addComment: (postComment: IPostComment) => Promise<ICommentData | null>;
+  deleteComment: (postComment: IPostComment) => Promise<void>;
 
-  addPhoto: (postId: String, photo: IPhoto) => Promise<IPhoto | null>;
-  deletePhoto: (postId: String, photoId: String) => Promise<void>;
+  addPhoto: (postPhoto: IPostPhoto) => Promise<IPhotoData | null>;
+  deletePhoto: (postPhoto: IPostPhoto) => Promise<void>;
 }
 
 export class PostDao implements IPostDao {
-  public async updateComment(
-    postId: String,
-    commentId: String,
-    comment: IComment
-  ): Promise<void> {
+  public async updateComment(postComment: IPostComment): Promise<void> {
     try {
-    } catch (err) {}
+      const post = await Post.update(
+        { "comments._id": postComment.commentId },
+        { $set: { "comments.$.comment": postComment.comment } },
+        { upsert: true }
+      );
+      if (post != null) {
+        return post;
+      }
+      throw new ResourceNotFoundError("Could not find Post");
+    } catch (err) {
+      if (err instanceof ResourceNotFoundError) {
+        throw new ResourceNotFoundError(err.message);
+      }
+      throw new DatabaseError(err);
+    }
   }
+
   public async addComment(
-    postId: String,
-    comment: IComment
-  ): Promise<IComment | null> {
-    return null;
+    postComment: IPostComment
+  ): Promise<ICommentData | null> {
+    try {
+      const post = await Post.findById(postComment.postId);
+      if (post != null) {
+        post.comments.push({ comment: postComment.comment });
+        const result = await post.save();
+        const comment = result.comments[post.comments.length - 1];
+        return comment;
+      }
+      throw new ResourceNotFoundError("Could not find Post");
+    } catch (err) {
+      if (err instanceof ResourceNotFoundError) {
+        throw new ResourceNotFoundError(err.message);
+      }
+      throw new DatabaseError(err);
+    }
   }
-  public async deleteComment(
-    postId: String,
-    commentId: String
-  ): Promise<void> {}
-  public async addPhoto(postId: String, photo: IPhoto): Promise<IPhoto | null> {
-    return null;
+  public async deleteComment(postComment: IPostComment): Promise<void> {
+    try {
+      const comment = await Post.update(
+        {
+          _id: postComment.postId
+        },
+        { $pull: { comments: { _id: postComment.commentId } } }
+      );
+      if (comment.n == 0) {
+        throw new ResourceNotFoundError("Could not find post");
+      }
+      if (comment.nModified == 0) {
+        throw new ResourceNotFoundError("Could not find comment");
+      }
+    } catch (err) {
+      if (err instanceof ResourceNotFoundError) {
+        throw new ResourceNotFoundError(err.message);
+      }
+      throw new DatabaseError(err);
+    }
   }
-  public async deletePhoto(postId: String, photoId: String): Promise<void> {}
+  public async addPhoto(postPhoto: IPostPhoto): Promise<IPhotoData | null> {
+    try {
+      const post = await Post.findById(postPhoto.postId);
+      if (post != null) {
+        post.photos.push({ photo: postPhoto.photo });
+        const result = await post.save();
+        const photo = result.photos[post.photos.length - 1];
+        return photo;
+      }
+      throw new ResourceNotFoundError("Could not find Post");
+    } catch (err) {
+      if (err instanceof ResourceNotFoundError) {
+        throw new ResourceNotFoundError(err.message);
+      }
+      throw new DatabaseError(err);
+    }
+  }
+  public async deletePhoto(postPhoto: IPostPhoto): Promise<void> {
+    try {
+      const photo = await Post.update(
+        {
+          _id: postPhoto.postId
+        },
+        { $pull: { photos: { _id: postPhoto.photoId } } }
+      );
+      if (photo.n == 0) {
+        throw new ResourceNotFoundError("Could not find post");
+      }
+      if (photo.nModified == 0) {
+        throw new ResourceNotFoundError("Could not find photo");
+      }
+    } catch (err) {
+      if (err instanceof ResourceNotFoundError) {
+        throw new ResourceNotFoundError(err.message);
+      }
+      throw new DatabaseError(err);
+    }
+  }
 
   public async getOne(value: string): Promise<IPost | null> {
     try {
@@ -75,8 +168,8 @@ export class PostDao implements IPostDao {
         photos: post.photos,
         comments: post.comments
       });
-      await newPost.save();
-      return newPost;
+      const result = await newPost.save();
+      return result;
     } catch (err) {
       if (err instanceof ResourceAlreadyExistsError) {
         throw new ResourceAlreadyExistsError(err.message);

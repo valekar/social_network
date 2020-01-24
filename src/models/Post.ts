@@ -10,12 +10,14 @@ export interface IPost extends Document, IBase {
   description: String;
   photos: [
     {
-      photoData: IPhoto;
+      _id?: String;
+      photo: IPhoto | null;
     }
   ];
   comments: [
     {
-      commentData: IComment;
+      _id?: String;
+      comment: IComment | null;
     }
   ];
   userId: String;

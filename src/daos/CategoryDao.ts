@@ -41,8 +41,8 @@ export class CategoryDao implements ICategoryDao {
           name: category.name,
           active: category.active
         });
-        await newCategory.save();
-        return newCategory;
+        const result = await newCategory.save();
+        return result;
       }
     } catch (err) {
       if (err instanceof ResourceAlreadyExistsError) {

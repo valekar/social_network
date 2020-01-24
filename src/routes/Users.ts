@@ -85,7 +85,7 @@ router.post("/", adminMW, async (req: Request, res: Response) => {
 
     const result = await userDao.add(user);
     //console.log(result);
-    return res.status(CREATED).end();
+    return res.status(CREATED).json(result);
   } catch (err) {
     logger.error(err.message, err);
     return res.status(BAD_REQUEST).json({

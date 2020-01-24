@@ -56,8 +56,8 @@ router.post("/", adminMW, async (req: Request, res: Response) => {
         error: paramMissingError
       });
     }
-    await groupDao.add(group);
-    return res.status(CREATED).end();
+    const result = await groupDao.add(group);
+    return res.status(CREATED).json(result);
   } catch (err) {
     logger.error(err.message, err);
     return res.status(BAD_REQUEST).json({
