@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 const port = Number(process.env.PORT || 3000);
 
 mongoose
-  .connect("mongodb://localhost:27017/typescriptDB")
+  .connect(process.env.MONGO_URL + "")
   .then(result => {
     app.listen(port, () => {
       logger.info("Express server started on port: " + port);
