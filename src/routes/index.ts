@@ -6,6 +6,7 @@ import CategoryRouter from "./Category";
 import CommentRouter from "./Comment";
 import PhotoRouter from "./Photo";
 import PostRouter from "./Post";
+import FileRouter from "./FileHandler";
 
 // Init router and path
 const router = Router();
@@ -18,6 +19,7 @@ router.use("/categories", CategoryRouter);
 router.use("/comments", CommentRouter);
 router.use("/photos", PhotoRouter);
 router.use("/posts", PostRouter);
+router.use("/files", FileRouter);
 
 // Export the base-router
 export default router;
